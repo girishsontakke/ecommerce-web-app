@@ -14,6 +14,9 @@ const Product = sequelize.define("product", {
     validate: {
       notNull: {
         msg: "title can't be null"
+      },
+      notEmpty: {
+        msg: "title can't be empty"
       }
     }
   },
@@ -23,6 +26,9 @@ const Product = sequelize.define("product", {
     validate: {
       notNull: {
         msg: "price can't be null"
+      },
+      notEmpty: {
+        msg: "price can't be empty"
       }
     }
   },
@@ -31,7 +37,10 @@ const Product = sequelize.define("product", {
     allowNull: false,
     validate: {
       notNull: {
-        msg: "imgUrl can't be null"
+        msg: "imageUrl can't be null"
+      },
+      notEmpty: {
+        msg: "imageUrl can't be empty"
       }
     }
   },
@@ -41,6 +50,9 @@ const Product = sequelize.define("product", {
     validate: {
       notNull: {
         msg: "description can't be null"
+      },
+      notEmpty: {
+        msg: "description can't be empty"
       }
     }
   }
