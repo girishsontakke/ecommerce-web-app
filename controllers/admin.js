@@ -71,7 +71,7 @@ exports.postEditProduct = async (req, res, next) => {
 exports.getProducts = async (req, res, next) => {
   let products = [];
   try {
-    products = await Product.findAll();
+    products = await req.user.getProducts();
   } catch (error) {
     console.error(error);
   }

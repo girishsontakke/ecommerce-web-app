@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../util/database");
+const Cart = require("./cart");
 
 const User = sequelize.define("user", {
   id: {
@@ -16,6 +17,12 @@ const User = sequelize.define("user", {
     allowNull: false,
     validate: { isEmail: true }
   }
+});
+
+User.afterCreate("create cart", (user) => {
+  Cart.create({
+    userId: user.id
+  });
 });
 
 module.exports = User;

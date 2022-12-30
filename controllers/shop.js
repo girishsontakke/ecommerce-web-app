@@ -1,5 +1,7 @@
 const Product = require("../models/product");
 const Cart = require("../models/cart");
+const CartItem = require("../models/cart-item");
+const { where } = require("sequelize");
 
 exports.getProducts = async (req, res, next) => {
   try {
@@ -44,37 +46,62 @@ exports.getIndex = async (req, res, next) => {
   });
 };
 
-exports.getCart = (req, res, next) => {
-  Cart.getCart((cart) => {
-    Product.fetchAll((products) => {
-      const cartProducts = [];
-      for (product of products) {
-        const cartProductData = cart.products.find(
-          (prod) => prod.id === product.id
-        );
-        if (cartProductData) {
-          cartProducts.push({ productData: product, qty: cartProductData.qty });
-        }
-      }
-      res.render("shop/cart", {
-        path: "/cart",
-        pageTitle: "Your Cart",
-        products: cartProducts
-      });
+exports.getCart = async (req, res, next) => {
+  try {
+    const cart = await Cart.findOne({ where: { userId: req.user.id } });
+    const cartItems = await CartItem.findAll({ where: { cartId: cart.id } });
+    const cartProducts = await Promise.all(
+      cartItems.map((cartItem) => {
+        return new Promise((resolve, reject) => {
+          Product.findByPk(cartItem.productId)
+            .then((product) => {
+              resolve({
+                ...product.dataValues,
+                quantity: cartItem.quantity
+              });
+            })
+            .catch((error) => reject(error));
+        });
+      })
+    );
+
+    res.render("shop/cart", {
+      path: "/cart",
+      pageTitle: "Your Cart",
+      products: cartProducts
     });
-  });
+  } catch (error) {
+    res.redirect("/");
+  }
 };
 
-exports.postCart = (req, res, next) => {
+exports.postCart = async (req, res, next) => {
   const prodId = req.body.productId;
-  Product.findById(prodId, (product) => {
-    Cart.addProduct(prodId, product.price);
-  });
-  res.redirect("/cart");
+  try {
+    const product = await Product.findByPk(prodId);
+    const cart = await Cart.findOne({ where: { userId: req.user.id } });
+    const [cartItem, _created] = await CartItem.findOrCreate({
+      where: { cartId: cart.id, productId: product.id }
+    });
+
+    await CartItem.update(
+      { quantity: cartItem.quantity + 1 },
+      {
+        where: {
+          cartId: cart.id,
+          productId: product.id
+        }
+      }
+    );
+  } catch (error) {
+  } finally {
+    res.redirect("/cart");
+  }
 };
 
 exports.postCartDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
+
   Product.findById(prodId, (product) => {
     Cart.deleteProduct(prodId, product.price);
     res.redirect("/cart");
