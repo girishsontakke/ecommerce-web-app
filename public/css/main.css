@@ -205,6 +205,15 @@ form {
   color: white;
 }
 
+.btn.danger {
+  color: red;
+  border-color: red;
+}
+.btn.danger:hover{
+  background-color: red;
+  color: white;
+}
+
 @media (min-width: 768px) {
   .main-header__nav {
     display: flex;
