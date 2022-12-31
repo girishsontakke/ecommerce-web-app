@@ -83,29 +83,20 @@ exports.postCart = async (req, res, next) => {
     const [cartItem, _created] = await CartItem.findOrCreate({
       where: { cartId: cart.id, productId: product.id }
     });
-
-    await CartItem.update(
-      { quantity: cartItem.quantity + 1 },
-      {
-        where: {
-          cartId: cart.id,
-          productId: product.id
-        }
-      }
-    );
+    console.log(`quantity ====== ${cartItem.quantity}`);
+    await cartItem.update({ quantity: cartItem.quantity + 1 });
   } catch (error) {
   } finally {
     res.redirect("/cart");
   }
 };
 
-exports.postCartDeleteProduct = (req, res, next) => {
+exports.postCartDeleteProduct = async (req, res, next) => {
   const prodId = req.body.productId;
 
-  Product.findById(prodId, (product) => {
-    Cart.deleteProduct(prodId, product.price);
-    res.redirect("/cart");
-  });
+  const cartItem = await CartItem.findOne({ where: { productId: prodId } });
+  cartItem.destroy();
+  return res.redirect("/cart");
 };
 
 exports.getOrders = (req, res, next) => {
