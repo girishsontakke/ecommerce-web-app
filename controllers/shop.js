@@ -13,21 +13,21 @@ exports.getProducts = async (req, res, next) => {
   }
 };
 
-// exports.getProduct = async (req, res, next) => {
-//   const prodId = req.params.productId;
-//   let product = {};
-//   try {
-//     product = await Product.findByPk(prodId);
-//   } catch (error) {
-//     console.error(error);
-//   }
+exports.getProduct = async (req, res, next) => {
+  const prodId = req.params.productId;
+  let product = {};
+  try {
+    product = await Product.findByPk(prodId);
+  } catch (error) {
+    console.error(error);
+  }
 
-//   return res.render("shop/product-detail", {
-//     product: product,
-//     pageTitle: product?.title,
-//     path: "/products"
-//   });
-// };
+  return res.render("shop/product-detail", {
+    product: product,
+    pageTitle: product?.title,
+    path: "/products"
+  });
+};
 
 exports.getIndex = async (req, res, next) => {
   let products = [];

@@ -4,13 +4,18 @@ const mongodb = require("mongodb");
 const { MongoClient } = mongodb;
 
 let _db;
-const mongoConnect = (callback = () => {}) =>
-  MongoClient.connect(process.env.MONGO_DB_URL)
-    .then((client) => {
-      callback();
-      _db = client.db();
-    })
-    .catch(console.error);
+let connected = false;
+const mongoConnect = (callback = () => {}) => {
+  if (!connected) {
+    return MongoClient.connect(process.env.MONGO_DB_URL)
+      .then((client) => {
+        callback();
+        _db = client.db();
+      })
+      .catch(console.error);
+  }
+  callback();
+};
 
 const getDb = () => {
   if (_db != undefined) return _db;
