@@ -14,13 +14,9 @@ exports.postAddProduct = async (req, res, next) => {
   const price = req.body.price;
   const description = req.body.description;
 
+  const product = new Product(title, price, imageUrl, description);
   try {
-    const product = await req.user.createProduct({
-      title,
-      imageUrl,
-      price,
-      description
-    });
+    await product.save();
   } catch (error) {
     console.error(error);
   }
