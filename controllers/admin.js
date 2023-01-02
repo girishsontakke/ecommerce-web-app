@@ -30,8 +30,7 @@ exports.getEditProduct = async (req, res, next) => {
   }
   const prodId = req.params.productId;
   try {
-    const products = await req.user.getProducts({ where: { id: prodId } });
-    const product = products[0];
+    const product = await Product.findByPk(prodId);
     if (!product) {
       return res.redirect("/admin/products");
     }
@@ -54,14 +53,20 @@ exports.postEditProduct = async (req, res, next) => {
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
 
-  await Product.upsert({
-    id: prodId,
-    title: updatedTitle,
-    price: updatedPrice,
-    imageUrl: updatedImageUrl,
-    description: updatedDesc
-  });
-  res.redirect("/admin/products");
+  try {
+    const product = new Product(
+      updatedTitle,
+      updatedPrice,
+      updatedImageUrl,
+      updatedDesc,
+      prodId
+    );
+    await product.save();
+  } catch (error) {
+    console.error(error);
+  } finally {
+    res.redirect("/admin/products");
+  }
 };
 
 exports.getProducts = async (req, res, next) => {
@@ -80,10 +85,7 @@ exports.getProducts = async (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.findByPk(prodId)
-    .then((product) => {
-      product.destroy();
-    })
+  Product.deleteById(prodId)
     .catch(console.error)
     .finally(() => {
       res.redirect("/admin/products");

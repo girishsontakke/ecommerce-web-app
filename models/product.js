@@ -2,16 +2,23 @@ const { getDb } = require("../util/database");
 const { ObjectId } = require("mongodb");
 
 class Product {
-  constructor(title, price, imageUrl, description) {
+  constructor(title, price, imageUrl, description, id) {
     this.title = title;
     this.price = price;
     this.imageUrl = imageUrl;
     this.description = description;
-    this.db = getDb();
+    if (id) this._id = new ObjectId(id);
   }
   save() {
     const db = getDb();
-    return db.collection("products").insertOne(this);
+    if (this._id) {
+      return db
+        .collection("products")
+        .updateOne({ _id: this._id }, { $set: this })
+        .catch(console.error);
+    } else {
+      return db.collection("products").insertOne(this);
+    }
   }
   static async findAll() {
     const db = getDb();
@@ -25,6 +32,12 @@ class Product {
       .find({ _id: new ObjectId(prodId) })
       .next();
     return product;
+  }
+  static async deleteById(prodId) {
+    const db = getDb();
+    return await db
+      .collection("products")
+      .deleteOne({ _id: new ObjectId(prodId) });
   }
 }
 

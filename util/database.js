@@ -11,10 +11,12 @@ const mongoConnect = (callback = () => {}) => {
       .then((client) => {
         callback();
         _db = client.db();
+        connected = true;
       })
-      .catch(console.error);
+      .catch(() => {
+        connected = false;
+      });
   }
-  callback();
 };
 
 const getDb = () => {
