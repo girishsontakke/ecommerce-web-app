@@ -5,17 +5,18 @@ const { MongoClient } = mongodb;
 
 let _db;
 let connected = false;
-const mongoConnect = (callback = () => {}) => {
+const mongoConnect = async (callback = () => {}) => {
   if (!connected) {
-    return MongoClient.connect(process.env.MONGO_DB_URL)
-      .then((client) => {
-        callback();
-        _db = client.db();
-        connected = true;
-      })
-      .catch(() => {
-        connected = false;
-      });
+    console.log("connecting...");
+    try {
+      const client = await MongoClient.connect(process.env.MONGO_DB_URL);
+      callback();
+      _db = client.db();
+      connected = true;
+    } catch (error) {
+      connected = false;
+      console.error(error);
+    }
   }
 };
 

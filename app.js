@@ -19,6 +19,9 @@ app.use(shopRoutes);
 
 app.use(errorController.get404);
 
+const PORT = process.env.APPLICATION_PORT || 5000;
+
 mongoConnect(() => {
-  app.listen(3000);
+  app.listen(PORT);
+  console.log(`successfully connected at http://localhost:${PORT}`);
 });
