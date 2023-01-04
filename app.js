@@ -27,10 +27,12 @@ app.use(errorController.get404);
 
 const PORT = process.env.APPLICATION_PORT || 5000;
 
-mongoConnect(() => {
-  const user = new User("girish", "girishsontakke7@gmail.com");
-  user.save().then(() => {
-    app.listen(PORT);
-  });
+mongoConnect(async () => {
+  const users = await User.findAll();
+  if (users.length === 0) {
+    const user = new User("girish", "girishsontakke7@gmail.com");
+    await user.save();
+  }
+  app.listen(PORT);
   console.log(`successfully connected at http://localhost:${PORT}`);
 });
