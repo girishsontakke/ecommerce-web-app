@@ -1,28 +1,43 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../util/database");
-const Cart = require("./cart");
+const { getDb } = require("../util/database");
 
-const User = sequelize.define("user", {
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
-  },
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    validate: { isEmail: true }
+class User {
+  constructor(name, email) {
+    this.name = name;
+    this.email = email;
   }
-});
 
-User.afterCreate("create cart", (user) => {
-  Cart.create({
-    userId: user.id
-  });
-});
+  async save() {
+    const db = getDb();
+    try {
+      await db.collection("users").insertOne(this);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  static async findAll() {
+    const db = getDb();
+    try {
+      const users = await db.collection("users").find().toArray();
+      return users;
+    } catch (error) {
+      console.error(error);
+    }
+    return [];
+  }
+
+  static async findByPk(userId) {
+    const db = getDb();
+    try {
+      const user = await db
+        .collection("users")
+        .find({ _id: new ObjectId(userId) })
+        .next();
+      return user;
+    } catch (error) {
+      console.error(error);
+    }
+    return {};
+  }
+}
 
 module.exports = User;
