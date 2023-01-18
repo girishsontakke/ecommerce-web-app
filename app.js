@@ -16,7 +16,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(async (req, _res, next) => {
   const users = await User.findAll();
-  if (users.length > 0) req.user = users[0];
+  if (users.length > 0) {
+    const user = users[0];
+    req.user = new User(user.name, user.email, user.cart, user._id);
+  }
   next();
 });
 
